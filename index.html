@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malaria Myth or Fact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=JetBrains+Mono:wght@500;700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one specimen-label card on a charcoal bench; red rubber stamps give the verdict. */
+:root{
+  --charcoal:#25272b;
+  --charcoal-2:#34373d;
+  --beige:#ece2cc;
+  --beige-dim:#b9ad93;
+  --red:#c62f2a;
+  --red-deep:#9f221e;
+  --f-display:"Big Shoulders Display","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--charcoal);
+  color:var(--beige);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.5;
+  -webkit-text-size-adjust:100%;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cg fill='none' stroke='%2334373d' stroke-width='14'%3E%3Ccircle cx='90' cy='110' r='54'/%3E%3Ccircle cx='400' cy='60' r='40'/%3E%3Ccircle cx='300' cy='330' r='66'/%3E%3Ccircle cx='60' cy='440' r='36'/%3E%3Ccircle cx='470' cy='460' r='48'/%3E%3C/g%3E%3Cg fill='%2334373d'%3E%3Ccircle cx='132' cy='84' r='12'/%3E%3Ccircle cx='430' cy='88' r='9'/%3E%3Ccircle cx='350' cy='288' r='13'/%3E%3Ccircle cx='86' cy='470' r='8'/%3E%3Ccircle cx='504' cy='430' r='10'/%3E%3C/g%3E%3C/svg%3E");
+}
+.wrap{position:relative;max-width:30rem;margin:0 auto;padding:20px 16px 48px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+[hidden]{display:none!important}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--beige-dim)}
+.brand{display:flex;align-items:center;gap:8px;color:var(--beige)}
+.ring{width:22px;height:22px;flex:none}
+.ring circle:first-child{stroke:var(--beige)}
+.ring circle:last-child{fill:var(--red)}
+.score{font-variant-numeric:tabular-nums}
+
+/* progress */
+.dots{display:flex;gap:6px;flex-wrap:nowrap}
+.dot{flex:1;height:8px;border-radius:99px;border:2px solid var(--beige-dim);background:transparent;min-width:0}
+.dot.now{border-color:var(--beige);background:var(--charcoal-2)}
+.dot.ok{background:var(--beige);border-color:var(--beige)}
+.dot.no{background:var(--red);border-color:var(--red)}
+
+/* intro + end */
+.hero{display:flex;flex-direction:column;gap:18px;padding-top:12px}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--beige-dim)}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(76px,26vw,124px);line-height:.84;text-transform:uppercase;margin:0;letter-spacing:-.005em;text-wrap:balance}
+h1 .or{color:var(--red);display:block}
+.lede{margin:0;max-width:34ch;color:var(--beige)}
+.small{font-size:14px;color:var(--beige-dim);margin:0}
+
+.btn{
+  appearance:none;border:0;cursor:pointer;font-family:var(--f-display);font-weight:800;font-size:30px;letter-spacing:.04em;text-transform:uppercase;
+  padding:14px 18px;border-radius:6px;min-height:60px;width:100%;line-height:1;transition:transform .12s ease, background-color .12s ease;
+}
+.btn:active{transform:translateY(2px)}
+.btn:focus-visible{outline:3px solid var(--beige);outline-offset:3px}
+.btn-red{background:var(--red);color:var(--beige)}
+.btn-red:hover{background:var(--red-deep)}
+.btn-beige{background:var(--beige);color:var(--charcoal)}
+.btn-beige:hover{background:#fff6df}
+.btn-ghost{background:transparent;color:var(--beige);box-shadow:inset 0 0 0 2px var(--beige-dim);font-size:22px;min-height:50px}
+.btn-ghost:hover{box-shadow:inset 0 0 0 2px var(--beige)}
+
+/* card */
+.stage{position:relative}
+.card{
+  position:relative;background:var(--beige);color:var(--charcoal);border-radius:10px;
+  padding:18px 18px 22px;display:flex;flex-direction:column;gap:14px;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+  box-shadow:0 2px 0 #cfc3a8, 0 18px 30px -12px rgba(0,0,0,.55);
+  border-top:10px solid var(--red);
+}
+.card.drag{transition:none}
+.card.snap{transition:transform .22s ease}
+.tagrow{display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.tagrow .spec{color:#5b5446}
+.chip{background:var(--charcoal);color:var(--beige);padding:3px 8px;border-radius:3px;white-space:nowrap}
+.claim{font-family:var(--f-display);font-weight:800;font-size:clamp(38px,12vw,52px);line-height:.98;text-transform:uppercase;margin:0;text-wrap:balance;min-height:3.9em;display:flex;align-items:center}
+.hints{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6b6352}
+
+.reveal{display:flex;flex-direction:column;gap:10px;border-top:2px dashed #b3a78c;padding-top:14px}
+.verdict{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.stamp{
+  font-family:var(--f-display);font-weight:900;font-size:40px;line-height:1;text-transform:uppercase;letter-spacing:.04em;
+  padding:4px 12px 2px;border:4px solid currentColor;border-radius:4px;transform:rotate(-4deg);display:inline-block;
+}
+.stamp.myth{color:var(--red)}
+.stamp.fact{color:var(--charcoal)}
+.stamp.pop{animation:pop .32s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:rotate(-14deg) scale(1.7);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
+.result{font-family:var(--f-mono);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.result.ok{color:var(--charcoal)}
+.result.no{color:var(--red)}
+.head{margin:0;font-weight:700;font-size:19px;line-height:1.3}
+.body{margin:0;font-size:16px;line-height:1.5}
+.src{margin:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;color:#6b6352}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.actions .wide{grid-column:1 / -1}
+
+/* end */
+.big{font-family:var(--f-display);font-weight:900;font-size:clamp(110px,38vw,170px);line-height:.8;margin:0;font-variant-numeric:tabular-nums}
+.big span{color:var(--red);font-size:.5em}
+.rank{font-family:var(--f-display);font-weight:800;font-size:38px;line-height:1;text-transform:uppercase;margin:0}
+.take{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.take li{background:var(--charcoal-2);border-left:6px solid var(--red);padding:12px 14px;border-radius:0 6px 6px 0;font-size:16px}
+.take b{color:var(--beige)}
+details{background:var(--charcoal-2);border-radius:6px;padding:0 14px}
+summary{cursor:pointer;padding:12px 0;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;min-height:44px;display:flex;align-items:center}
+summary:focus-visible{outline:3px solid var(--beige);outline-offset:2px}
+.key{list-style:none;margin:0;padding:0 0 12px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.key li{display:grid;grid-template-columns:3.2rem 1fr;gap:10px;align-items:baseline}
+.key .v{font-family:var(--f-mono);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--charcoal);background:var(--beige);padding:2px 6px;border-radius:3px;text-align:center}
+.key .v.m{background:var(--red);color:var(--beige)}
+.key .got{color:var(--beige-dim)}
+.srcs{margin:0;padding:0 0 12px 18px;font-size:14px;color:var(--beige-dim)}
+.srcs a{color:var(--beige)}
+.srcs li{margin-bottom:4px}
+
+@media (prefers-reduced-motion:reduce){
+  .stamp.pop{animation:none}
+  .card.snap,.btn{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- INTRO -->
+  <section id="intro" class="hero" aria-labelledby="t">
+    <div class="top">
+      <span class="brand">
+        <svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke-width="3"/><circle cx="18.6" cy="6.6" r="3.4"/></svg>
+        Malaria research
+      </span>
+      <span>12 specimens</span>
+    </div>
+    <div class="eyebrow">Southern Africa edition</div>
+    <h1 id="t">Myth<span class="or">or fact?</span></h1>
+    <p class="lede">Twelve claims about malaria, from Gauteng clinics to Hawaiian forests. Call each one before the answer drops.</p>
+    <button class="btn btn-red" id="start" type="button">Start</button>
+    <p class="small">About three minutes. Tap the buttons or swipe the card. Nothing is saved or sent anywhere.</p>
+  </section>
+
+  <!-- PLAY -->
+  <section id="play" hidden aria-label="Quiz">
+    <div class="top" style="margin-bottom:12px">
+      <span class="brand">
+        <svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke-width="3"/><circle cx="18.6" cy="6.6" r="3.4"/></svg>
+        Myth or fact?
+      </span>
+      <span class="score" id="score" aria-live="polite">0 correct</span>
+    </div>
+    <div class="dots" id="dots" role="img" aria-label="Progress"></div>
+
+    <div class="stage" style="margin-top:16px">
+      <article class="card snap" id="card" aria-live="polite">
+        <div class="tagrow"><span class="spec" id="spec"></span><span class="chip" id="chip"></span></div>
+        <h2 class="claim" id="claim"></h2>
+        <div class="hints" id="hints" aria-hidden="true"><span>&larr; Swipe for myth</span><span>Fact &rarr;</span></div>
+        <div class="reveal" id="reveal" hidden>
+          <div class="verdict">
+            <span class="stamp" id="stamp"></span>
+            <span class="result" id="result"></span>
+          </div>
+          <p class="head" id="head"></p>
+          <p class="body" id="bodytxt"></p>
+          <p class="src" id="src"></p>
+        </div>
+      </article>
+    </div>
+
+    <div class="actions" id="actions" style="margin-top:16px">
+      <button class="btn btn-red" id="bMyth" type="button">Myth</button>
+      <button class="btn btn-beige" id="bFact" type="button">Fact</button>
+    </div>
+    <div class="actions" id="nextWrap" hidden style="margin-top:16px">
+      <button class="btn btn-red wide" id="bNext" type="button">Next specimen</button>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="end" class="hero" hidden aria-labelledby="endTitle">
+    <div class="top"><span class="brand">
+        <svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke-width="3"/><circle cx="18.6" cy="6.6" r="3.4"/></svg>
+        Results</span><span>Specimen file closed</span></div>
+    <p class="big" id="final" aria-label="Final score"></p>
+    <h2 class="rank" id="endTitle"></h2>
+    <p class="lede" id="endLine"></p>
+
+    <ul class="take">
+      <li><b>Fever after travel?</b> Tell the doctor where you have been and ask for a malaria test the same day. This matters in Gauteng, where malaria is easy to overlook.</li>
+      <li><b>It is a wildlife disease too.</b> Bird, primate and reptile malaria shape ecosystems and show how climate, vectors and hosts interact.</li>
+      <li><b>The tools work.</b> Nets, drugs and vaccines have averted 2.3 billion cases since 2000. Resistance and funding gaps are the threat.</li>
+    </ul>
+
+    <button class="btn btn-red" id="again" type="button">Play again</button>
+
+    <details>
+      <summary>Answer key</summary>
+      <ul class="key" id="key"></ul>
+    </details>
+    <details>
+      <summary>Sources</summary>
+      <ul class="srcs">
+        <li><a href="https://www.who.int/teams/global-malaria-programme/reports/world-malaria-report-2025" target="_blank" rel="noopener">WHO, World malaria report 2025</a></li>
+        <li><a href="https://www.who.int/news-room/questions-and-answers/item/q-a-on-rts-s-malaria-vaccine" target="_blank" rel="noopener">WHO, Malaria vaccines (RTS,S and R21)</a></li>
+        <li><a href="https://www.gavi.org/malaria-vaccine-support" target="_blank" rel="noopener">Gavi, malaria vaccine support</a></li>
+        <li><a href="https://www.usgs.gov/ecosystems/fish-wildlife-disease/diseases-terrestrial-wildlife/avian-malaria" target="_blank" rel="noopener">USGS, Avian malaria</a></li>
+        <li><a href="https://www.usgs.gov/publications/changing-climate-and-altitudinal-range-avian-malaria-hawaiian-islands-ongoing" target="_blank" rel="noopener">Atkinson et al. 2014, Global Change Biology</a></li>
+        <li><a href="https://ewn.co.za/2026/04/22/health-dept-says-gauteng-malaria-cases-imported-from-high-risk-areas" target="_blank" rel="noopener">EWN, Gauteng malaria cases, April 2026</a></li>
+        <li><a href="https://www.mdpi.com/2414-6366/7/11/391" target="_blank" rel="noopener">Brooke 2022, malaria vector control in South Africa</a></li>
+      </ul>
+    </details>
+  </section>
+</div>
+
+<script>
+(function(){
+  var CARDS = [
+    {tag:"Wildlife", q:"Only humans get malaria.", myth:true,
+     head:"Birds, primates, rodents and reptiles host their own Plasmodium parasites.",
+     body:"Avian malaria (Plasmodium relictum) reached Hawaii with introduced mosquitoes and has helped drive native honeycreepers towards extinction; over 90% of infected ʻIʻiwi die. Macaque malaria (P. knowlesi) also infects people.",
+     src:"Source: USGS, Avian malaria"},
+    {tag:"Plants", q:"Both classic antimalarial drugs were first found in plants.", myth:false,
+     head:"Quinine comes from Cinchona bark and artemisinin from sweet wormwood, Artemisia annua.",
+     body:"Today’s frontline treatments are artemisinin-based combinations. Their discovery shared the 2015 Nobel Prize in Physiology or Medicine.",
+     src:"Source: WHO malaria guidelines"},
+    {tag:"Vectors", q:"Any mosquito can spread malaria.", myth:true,
+     head:"Only female Anopheles mosquitoes carry human malaria.",
+     body:"Of the several hundred Anopheles species, just a few dozen are important vectors. Culex and Aedes do not transmit human malaria, though Culex does carry bird malaria in Hawaii.",
+     src:"Source: WHO, CDC vector biology"},
+    {tag:"Gauteng", q:"Malaria is not a Gauteng problem.", myth:true,
+     head:"Gauteng is not a transmission area, but its hospitals treat malaria every year.",
+     body:"Local transmission is concentrated in low-lying Limpopo, Mpumalanga and KwaZulu-Natal. Gauteng’s cases are mostly imported by travellers, and rare ‘airport malaria’ from stowaway mosquitoes is on record. By late April 2026 the province had reported 414 cases and 11 deaths.",
+     src:"Source: EWN, NICD-linked reporting, Apr 2026"},
+    {tag:"Vectors", q:"Malaria mosquitoes mostly bite at night.", myth:false,
+     head:"Most Anopheles feed between dusk and dawn.",
+     body:"That is why an insecticide-treated net over the bed is so effective, and why evening cover-up and repellent matter for travellers.",
+     src:"Source: WHO, CDC"},
+    {tag:"Travel", q:"A gin and tonic keeps malaria away.", myth:true,
+     head:"Tonic water has far too little quinine to protect you.",
+     body:"Quinine is a treatment drug, and the amount in tonic is a tiny fraction of a medicinal dose. Travellers to risk areas need proper prophylaxis from a doctor or travel clinic, plus bite avoidance.",
+     src:"Source: CDC, WHO travel guidance"},
+    {tag:"Travel", q:"After a trip, a fever can safely wait a few days.", myth:true,
+     head:"Falciparum malaria can turn dangerous fast.",
+     body:"Early symptoms look like flu and can appear weeks, even months, after you return. In places where malaria is not expected, delayed diagnosis is the danger. Say where you have been and ask for a test.",
+     src:"Source: WHO, NICD guidance"},
+    {tag:"History", q:"Malaria used to be common in Europe and the USA.", myth:false,
+     head:"Drainage, housing, drugs and vector control pushed it out.",
+     body:"The USA cleared transmission by the early 1950s, and most of Europe by the 1970s. Elimination is possible, but it takes sustained effort.",
+     src:"Source: CDC, WHO"},
+    {tag:"Immunity", q:"Once you have had malaria, you are immune for life.", myth:true,
+     head:"Natural immunity is partial, and it fades.",
+     body:"It builds slowly after repeated infections, never fully blocks infection, and wanes when exposure stops. People can be reinfected and become seriously ill, particularly young children and pregnant women.",
+     src:"Source: WHO"},
+    {tag:"Vaccines", q:"Two malaria vaccines are already in use.", myth:false,
+     head:"RTS,S and R21 are rolling out across Africa.",
+     body:"By January 2026, 25 African countries had introduced them into routine immunisation. In trials they cut clinical malaria by more than 50% in the year after three doses. They target P. falciparum, are recommended for children where malaria is common, and work alongside nets and drugs.",
+     src:"Source: WHO, Gavi"},
+    {tag:"Climate", q:"A warmer climate can push malaria uphill.", myth:false,
+     head:"Warming lets mosquitoes and parasites survive in cooler places.",
+     body:"In Hawaii, bird malaria transmission is greatest below about 1,500 m, and warming is moving it into the high forests where the last native honeycreepers shelter. For human malaria the effect varies by region, so local data matter.",
+     src:"Source: Atkinson et al. 2014, USGS"},
+    {tag:"Global", q:"Malaria is a solved problem.", myth:true,
+     head:"282 million cases and 610,000 deaths in 2024.",
+     body:"About 94% of cases and 95% of deaths were in WHO’s African Region, mostly in children under five. Tools have averted 2.3 billion cases and 14 million deaths since 2000, but cases rose by about 9 million in 2024 and drug resistance is growing.",
+     src:"Source: WHO, World malaria report 2025"}
+  ];
+  var N = CARDS.length;
+  var RANKS = [
+    [0, "Fresh larva", "Everyone starts in the water. Play again and watch the numbers climb."],
+    [5, "Field assistant", "Solid instincts. A few myths are still biting."],
+    [8, "Lab regular", "You know your vectors from your victims. Nearly there."],
+    [11, "Principal investigator", "Barely a myth gets past you. Time to tell someone else."]
+  ];
+
+  var $ = function(id){return document.getElementById(id)};
+  var intro=$("intro"), play=$("play"), end=$("end");
+  var card=$("card"), reveal=$("reveal"), hints=$("hints");
+  var state = {i:0, score:0, answers:[]};
+  var locked = false;
+
+  function show(which){
+    intro.hidden = which!=="intro";
+    play.hidden = which!=="play";
+    end.hidden = which!=="end";
+    window.scrollTo(0,0);
+  }
+
+  function buildDots(){
+    var d=$("dots"); d.innerHTML="";
+    for(var k=0;k<N;k++){
+      var s=document.createElement("span");
+      s.className="dot"; d.appendChild(s);
+    }
+  }
+  function paintDots(){
+    var ds=$("dots").children;
+    for(var k=0;k<N;k++){
+      var a=state.answers[k];
+      ds[k].className="dot"+(a===undefined?(k===state.i?" now":""):(a?" ok":" no"));
+    }
+    $("dots").setAttribute("aria-label","Specimen "+(state.i+1)+" of "+N);
+    $("score").textContent = state.score+" correct";
+  }
+
+  function renderCard(){
+    var c=CARDS[state.i];
+    locked=false;
+    $("spec").textContent="Specimen "+String(state.i+1).padStart(2,"0")+" / "+N;
+    $("chip").textContent=c.tag;
+    $("claim").textContent=c.q;
+    reveal.hidden=true; hints.hidden=false;
+    $("actions").hidden=false; $("nextWrap").hidden=true;
+    card.classList.add("snap"); card.style.transform="";
+    paintDots();
+  }
+
+  function answer(sayMyth){
+    if(locked) return; locked=true;
+    var c=CARDS[state.i];
+    var right = (sayMyth===c.myth);
+    state.answers[state.i]=right;
+    if(right) state.score++;
+    card.classList.add("snap"); card.style.transform="";
+    var st=$("stamp");
+    st.textContent = c.myth ? "Myth" : "Fact";
+    st.className = "stamp "+(c.myth?"myth":"fact");
+    void st.offsetWidth; st.classList.add("pop");
+    var r=$("result");
+    r.textContent = right ? "Spot on" : "Not quite";
+    r.className = "result "+(right?"ok":"no");
+    $("head").textContent=c.head;
+    $("bodytxt").textContent=c.body;
+    $("src").textContent=c.src;
+    reveal.hidden=false; hints.hidden=true;
+    $("actions").hidden=true; $("nextWrap").hidden=false;
+    $("bNext").textContent = state.i===N-1 ? "See my results" : "Next specimen";
+    paintDots();
+    $("bNext").focus({preventScroll:true});
+    reveal.scrollIntoView({block:"nearest",behavior:"smooth"});
+  }
+
+  function next(){
+    if(state.i>=N-1){ finish(); return; }
+    state.i++; renderCard();
+    window.scrollTo(0,0);
+  }
+
+  function finish(){
+    var f=$("final");
+    f.innerHTML = state.score+"<span>/"+N+"</span>";
+    f.setAttribute("aria-label","Final score "+state.score+" out of "+N);
+    var r=RANKS[0];
+    RANKS.forEach(function(x){ if(state.score>=x[0]) r=x; });
+    $("endTitle").textContent=r[1];
+    $("endLine").textContent=r[2];
+    var k=$("key"); k.innerHTML="";
+    CARDS.forEach(function(c,idx){
+      var li=document.createElement("li");
+      var v=document.createElement("span");
+      v.className="v"+(c.myth?" m":""); v.textContent=c.myth?"Myth":"Fact";
+      var t=document.createElement("span");
+      t.textContent=c.q+" ";
+      var g=document.createElement("span"); g.className="got";
+      g.textContent = state.answers[idx] ? "(you got it)" : "(you missed it)";
+      t.appendChild(g);
+      li.appendChild(v); li.appendChild(t); k.appendChild(li);
+    });
+    show("end");
+  }
+
+  function restart(){
+    state={i:0,score:0,answers:[]};
+    buildDots(); renderCard(); show("play");
+  }
+
+  $("start").addEventListener("click",restart);
+  $("again").addEventListener("click",restart);
+  $("bMyth").addEventListener("click",function(){answer(true)});
+  $("bFact").addEventListener("click",function(){answer(false)});
+  $("bNext").addEventListener("click",next);
+  document.addEventListener("keydown",function(e){
+    if(play.hidden) return;
+    if(!locked){
+      if(e.key==="ArrowLeft"||e.key==="m"||e.key==="M") answer(true);
+      else if(e.key==="ArrowRight"||e.key==="f"||e.key==="F") answer(false);
+    }
+  });
+
+  /* swipe: left = myth, right = fact */
+  var sx=0, dx=0, drag=false;
+  card.addEventListener("pointerdown",function(e){
+    if(locked) return;
+    drag=true; sx=e.clientX; dx=0;
+    card.classList.remove("snap"); card.classList.add("drag");
+    try{card.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  card.addEventListener("pointermove",function(e){
+    if(!drag) return;
+    dx=e.clientX-sx;
+    card.style.transform="translateX("+dx+"px) rotate("+(dx/24)+"deg)";
+  });
+  function endDrag(){
+    if(!drag) return; drag=false;
+    card.classList.remove("drag"); card.classList.add("snap");
+    if(dx>90) answer(false);
+    else if(dx<-90) answer(true);
+    else card.style.transform="";
+    dx=0;
+  }
+  card.addEventListener("pointerup",endDrag);
+  card.addEventListener("pointercancel",endDrag);
+
+  /* keep place across republish */
+  try{
+    if(window.claude && window.claude.hot && window.claude.hot.snapshot){
+      window.claude.hot.snapshot(function(){return state});
+    }
+  }catch(_){}
+  buildDots();
+})();
+</script>
+</body>
+</html>
